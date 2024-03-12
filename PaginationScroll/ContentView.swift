@@ -8,14 +8,32 @@
 import SwiftUI
 
 struct ContentView: View {
+    
+    @StateObject var postsViewModel = PostsViewModel()
+    
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        ScrollView {
+            LazyVStack {
+                if let data = postsViewModel.posts {
+                    ForEach(data.indices, id: \.self) { index in
+                        Text(data[index].title)
+                            .onAppear {
+                                if index == data.count - 1 {
+                                    postsViewModel.loadMore()
+                                }
+                                
+                            }
+                    }
+                    ProgressView()
+                              .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else {
+                    Text("Loading...")
+                }
+            }
         }
-        .padding()
+        .onAppear {
+            postsViewModel.getPosts()
+        }
     }
 }
 
